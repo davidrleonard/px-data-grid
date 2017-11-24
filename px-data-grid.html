@@ -380,6 +380,8 @@
             return;
           }
 
+          let columnColor;
+          let rowColor;
           let cellColor;
 
           this.highlight.forEach((highlightEntity) => {
@@ -389,32 +391,38 @@
                   if (highlightEntity.color) {
                     cellColor = `background: ${highlightEntity.color}`;
                   } else {
-                    cellColor = 'background: --px-data-grid-highlight-background-color';
+                    cellColor = 'background: var(--px-data-grid-highlight--high, #DDD)';
                   }
                 }
                 break;
               case 'row':
                 if (this._isRowConditionApplied(item, highlightEntity.condition)) {
                   if (highlightEntity.color) {
-                    cellColor = `background: ${highlightEntity.color}`;
+                    rowColor = `background: ${highlightEntity.color}`;
                   } else {
-                    cellColor = 'background: --px-data-grid-highlight-background-color';
+                    rowColor = 'background: var(--px-data-grid-highlight--high, #DDD)';
                   }
                 }
                 break;
               case 'column':
                 if (this._isColumnConditionApplied(column, highlightEntity.condition)) {
                   if (highlightEntity.color) {
-                    cellColor = `background: ${highlightEntity.color}`;
+                    columnColor = `background: ${highlightEntity.color}`;
                   } else {
-                    cellColor = 'background: --px-data-grid-highlight-background-color';
+                    columnColor = 'background: var(--px-data-grid-highlight--high, #DDD)';
                   }
                 }
                 break;
             }
           });
 
-          return cellColor;
+          if (cellColor) {
+            return cellColor;
+          } else if (rowColor) {
+            return rowColor;
+          } else {
+            return columnColor;
+          }
         }
 
         _isRowConditionApplied(item, condition) {

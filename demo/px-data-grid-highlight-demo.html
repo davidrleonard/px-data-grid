@@ -164,9 +164,10 @@
         value: [
           {
             type: 'cell',
-            color: 'red',
+            // use default color
+            // color: 'red',
             condition: (cellContent, item) => {
-              return cellContent == 'Elizabeth';
+              return cellContent == 'Dennis';
             }
           },
           {
@@ -178,9 +179,9 @@
           },
           {
             type: 'row',
-            color: 'blue',
+            color: 'lightblue',
             condition: (cellContent, item) => {
-              return item && item.last == 'Dennis';
+              return item && (item.last == 'Dennis' || item.first == 'Carl');
             }
           }
         ]
