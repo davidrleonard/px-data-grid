@@ -53,12 +53,8 @@
             <template>[[item.first]] [[item.last]]</template>
           </px-data-grid-column>
 
-          <px-data-grid-column name="First Name">
-            <template class="header">
-              <vaadin-grid-sorter path="first">First Name</vaadin-grid-sorter>
-            </template>
-            <template>[[item.first]]</template>
-          </px-data-grid-column>
+          <px-data-grid-easy-column name="First Name" sortKey="first" provider="{{props.provideFirstName.value}}">
+          </px-data-grid-easy-column>
 
           <px-data-grid-column name="Last Name">
             <template class="header">
@@ -392,6 +388,7 @@
         }
       },
     },
+
     /**
      * A reference for `this.props`. Read the documentation there.
      */
@@ -482,6 +479,13 @@
           }
         ],
         inputType: 'code:JSON'
+      },
+
+      provideFirstName: {
+        type: Function,
+        defaultValue: function(i) {
+          return i.first;
+        }
       }
     }
   });
