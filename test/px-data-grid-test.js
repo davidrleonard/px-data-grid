@@ -36,8 +36,27 @@ function runTests() {
       return grid._vaadinGrid.$.items.querySelectorAll('tr');
     }
 
+    function getVisibleRows() {
+      // the following querySelector fails on safari for some reason
+      // return grid._vaadinGrid.$.items.querySelectorAll('tr:not([hidden]');
+      const rows = getRows();
+      const visibleRows = Array.prototype.filter.call(rows, function(row) {
+        return row.getAttribute('hidden') !== ''
+            && row.getAttribute('hidden') !== true;
+      });
+      return visibleRows;
+    }
+
     function getRowCells(row) {
       return Array.prototype.slice.call(Polymer.dom(row).querySelectorAll('[part~="cell"]'));
+    }
+
+    function getCellContent(cell) {
+      const slot = cell.querySelector('slot');
+      const slotName = slot.getAttribute('name');
+      const content = grid.shadowRoot.querySelector('[slot="' + slotName + '"]');
+      const wrapper = content.querySelector('div');
+      return wrapper.innerHTML;
     }
 
     beforeEach((done) => {
@@ -188,6 +207,61 @@ function runTests() {
       it('should set _generatedColumns to empty array', () => {
         expect(grid._generatedColumns.length).to.be.eql(0);
       });
+    });
+
+    describe('auto filter field tests', () => {
+
+      beforeEach(() => {
+        grid = fixture('grid-with-auto-filter');
+        grid.tableData = data;
+        grid.autoFilter = true;
+      });
+
+      it('should show only 1 row after filtering', (done) => {
+        Polymer.RenderStatus.afterNextRender(grid, () => {
+          setTimeout(() => { // IE11
+            const autoFilter = grid.shadowRoot.querySelector('px-auto-filter-field');
+            autoFilter.addEventListener('filter-change', function(event) {
+              expect(getVisibleRows().length).to.be.eql(1);
+              done();
+            });
+            autoFilter.value = 'Elizabeth';
+          });
+        });
+      });
+
+      it('should show 2 rows after filtering', (done) => {
+        Polymer.RenderStatus.afterNextRender(grid, () => {
+          setTimeout(() => { // IE11
+            const autoFilter = grid.shadowRoot.querySelector('px-auto-filter-field');
+            autoFilter.addEventListener('filter-change', function(event) {
+              expect(getVisibleRows().length).to.be.eql(2);
+              done();
+            });
+            autoFilter.value = 'am';
+          });
+        });
+      });
+
+      it('should show all rows when filter value is empty', (done) => {
+        Polymer.RenderStatus.afterNextRender(grid, () => {
+          setTimeout(() => { // IE11
+            const autoFilter = grid.shadowRoot.querySelector('px-auto-filter-field');
+            // set filter with value to reduce # of visible rows
+            autoFilter.value = 'am';
+            // give 500ms to let rows update
+            setTimeout(function() {
+              // add listener and clear filter value to let all rows become visible
+              autoFilter.addEventListener('filter-change', function(event) {
+                expect(getVisibleRows().length).to.be.eql(data.length);
+                done();
+              });
+              autoFilter.value = '';
+            }, autoFilter.timeout + 100);
+          });
+        });
+      });
+
     });
   });
 }
