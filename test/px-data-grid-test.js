@@ -40,6 +40,14 @@ function runTests() {
       return Array.prototype.slice.call(Polymer.dom(row).querySelectorAll('[part~="cell"]'));
     }
 
+    function getHeaderCell(grid, index) {
+      return grid._vaadinGrid.$.header.querySelectorAll('[part~="cell"]')[index];
+    }
+
+    function getHeaderCellContent(cell) {
+      return cell ? cell.querySelector('slot').assignedNodes()[0].querySelector('px-data-grid-header-cell') : null;
+    }
+
     beforeEach((done) => {
       grid = fixture('simple-grid');
       grid.tableData = data;
@@ -173,6 +181,17 @@ function runTests() {
       });
     });
 
+
+    describe('column dropdown menu', () => {
+      it('should move the frozen column to the left side of the grid', (done) => {
+        let firstHeaderCellContent = getHeaderCellContent(getHeaderCell(grid, 0));
+        let secondHeaderCellContent = getHeaderCellContent(getHeaderCell(grid, 1));
+
+        // open dropdown menu of the second column header and click freeze column
+
+        // check that the second column moved to the left side and it's lastFrozen now
+      });
+    });
 
     describe('grid-with-columns tests', () => {
       beforeEach((done) => {
