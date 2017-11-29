@@ -97,10 +97,10 @@
       <template is="dom-repeat" items="[[_generatedColumns]]" as="column">
         <px-data-grid-column resizable="[[resizable]]" name="[[column.name]]" hidden="[[column.hidden]]" language="[[language]]" resources="[[resources]]">
           <template class="header">
-            <vaadin-grid-sorter path="[[column.name]]">[[column.name]]</vaadin-grid-sorter>
+            <vaadin-grid-sorter path="[[column.name]]">[[column.header]]</vaadin-grid-sorter>
           </template>
           <template>
-            <div class="cell-content-wrapper" style$="[[_getCellStyle(item, column)]]" on-mouseover="_fireCellHoverEvent" on-mouseout="_fireCellUnhoverEvent">[[get(column.name, item)]]</div>
+            <div class="cell-content-wrapper" style$="[[_getCellStyle(item, column)]]" on-mouseover="_fireCellHoverEvent" on-mouseout="_fireCellUnhoverEvent">[[_getValue(column, item)]]</div>
           </template>
         </px-data-grid-column>
       </template>
@@ -238,6 +238,10 @@
              * @private
              */
             _generatedColumns: {
+              type: Array
+            },
+
+            columns: {
               type: Array
             },
 
@@ -381,8 +385,6 @@
           this._vaadinGrid = this.shadowRoot.querySelector('vaadin-grid');
           this._vaadinGrid._filter = this._filter;
 
-          this._addColumnsObserver();
-
           if (this.highlight.length) {
             this._vaadinGrid.setAttribute('highlighted', '');
             this.setAttribute('highlighted', '');
@@ -488,14 +490,27 @@
         }
 
         _populateTableColumns(data) {
-          const manualColumns = this.querySelectorAll(Predix.DataGridColumnElement.is);
+          if (this.columns.length) {
+            this._generatedColumns = [];
 
-          if (!manualColumns.length && data && data.length) {
+            this.columns.forEach((column) => {
+              this._generatedColumns.push({
+                name: column.name,
+                hidden: false,
+                header: column.header,
+                value: column.value
+              });
+            });
+          } else if (!this.columns.length && data && data.length) {
             this._generatedColumns = [];
             for (const key in data[0]) {
               this._generatedColumns.push({
                 'name': key,
-                'hidden': false
+                'hidden': false,
+                'header': key,
+                'value': (item) => {
+                  return this.get(key, item);
+                }
               });
             }
 
@@ -575,30 +590,6 @@
           this._actionMenuContent = content;
         }
 
-        /**
-         * Observer for internal DOM changes
-         */
-        _addColumnsObserver() {
-          this._observer = new Polymer.FlattenedNodesObserver(this, info => {
-            const manualColumns = this.querySelectorAll(Predix.DataGridColumnElement.is);
-            this._handleManualColumns(manualColumns);
-          });
-        }
-
-        _handleManualColumns(manualColumns) {
-          manualColumns.forEach((column) => {
-            column.language = this.language;
-            column.resources = this.resources;
-          });
-
-          if (manualColumns.length) {
-            this._generatedColumns = [];
-          } else {
-            this._populateTableColumns();
-          }
-          this._updateActionMenu();
-        }
-
         _loadingChanged(loading) {
           clearTimeout(this._spinnerHiddenTimeout);
 
@@ -656,6 +647,13 @@
             this._vaadinGrid._filters = filters;
             this._vaadinGrid.clearCache();
           }
+        }
+
+        _getValue(column, item) {
+          if (!column || !item) {
+            return;
+          }
+          return column.value(item);
         }
       }
       customElements.define(DataGridElement.is, DataGridElement);

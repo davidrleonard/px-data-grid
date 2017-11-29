@@ -45,34 +45,8 @@
           column-reordering-allowed="{{props.columnReorderingAllowed.value}}"
           action-menu="{{props.actionMenu.value}}"
           language="{{props.language.value}}"
-          table-actions="{{props.tableActions.value}}">
-          <px-data-grid-column name="Full Name" hidden="{{props.hideFullName.value}}" frozen="{{props.freezeFullName.value}}">
-            <template class="header">
-                <vaadin-grid-sorter path="last">Full Name</vaadin-grid-sorter>
-            </template>
-            <template>[[item.first]] [[item.last]]</template>
-          </px-data-grid-column>
-
-          <px-data-grid-column name="First Name">
-            <template class="header">
-              <vaadin-grid-sorter path="first">First Name</vaadin-grid-sorter>
-            </template>
-            <template>[[item.first]]</template>
-          </px-data-grid-column>
-
-          <px-data-grid-column name="Last Name">
-            <template class="header">
-                <vaadin-grid-sorter path="last">Last Name</vaadin-grid-sorter>
-            </template>
-            <template>[[item.last]]</template>
-          </px-data-grid-column>
-
-          <px-data-grid-column name="Email">
-            <template class="header">
-                <vaadin-grid-sorter path="email">Email</vaadin-grid-sorter>
-            </template>
-            <template>[[item.email]]</template>
-          </px-data-grid-column>
+          table-actions="{{props.tableActions.value}}"
+          columns="{{props.columns.value}}">
         </px-data-grid>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -426,6 +400,33 @@
           }
         ],
         inputType: 'code:JSON'
+      },
+
+      columns: {
+        type: Array,
+        defaultValue: [
+          {
+            name: 'first',
+            header: 'First Name',
+            value: (item) => {
+              return item.first;
+            }
+          },
+          {
+            name: 'last',
+            header: 'Last Name',
+            value: (item) => {
+              return item.last;
+            }
+          },
+          {
+            name: 'email',
+            header: 'Email',
+            value: (item) => {
+              return item.email;
+            }
+          }
+        ]
       },
 
       resizable: {
