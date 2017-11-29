@@ -209,6 +209,33 @@ function runTests() {
       });
     });
 
+    describe('local data source', () => {
+
+      beforeEach((done) => {
+        grid = fixture('simple-grid');
+        grid.tableData = data;
+
+        Polymer.RenderStatus.afterNextRender(grid, () => {
+          setTimeout(() => { // IE11
+            done();
+          });
+        });
+      });
+
+      it('cell values in DOM should match that of the local data source', () => {
+        getRows().forEach((row, rowIndex) => {
+          getRowCells(row).forEach((cell, cellIndex) => {
+            // compare value we find in DOM and value in our data object
+            const dataRow = data[rowIndex];
+            const expectedVal = dataRow[Object.keys(dataRow)[cellIndex]];
+            const domVal = getCellContent(cell);
+            expect(domVal).to.be.eql(expectedVal);
+          });
+        });
+      });
+
+    });
+
     describe('auto filter field tests', () => {
 
       beforeEach(() => {
