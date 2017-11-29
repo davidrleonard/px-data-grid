@@ -62,6 +62,7 @@
             action-menu="{{props.actionMenu.value}}"
             language="{{props.language.value}}"
             auto-filter="{{props.autoFilter.value}}"
+            column-auto-filter="{{props.columnAutoFilter.value}}"
             on-cell-hover="cellHoverListener"
             on-cell-unhover="cellUnhoverListener">
         </px-data-grid>
@@ -490,6 +491,12 @@
       },
 
       autoFilter: {
+        type: Boolean,
+        defaultValue: false,
+        inputType: 'toggle'
+      },
+
+      columnAutoFilter: {
         type: Boolean,
         defaultValue: false,
         inputType: 'toggle'

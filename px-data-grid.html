@@ -2,6 +2,7 @@
 <link rel="import" href="../vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="../vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../vaadin-grid/vaadin-grid-filter.html">
 <link rel="import" href="../px-spinner/px-spinner.html">
 <link rel="import" href="px-data-grid-column.html">
 <link rel="import" href="px-auto-filter-field.html">
@@ -98,6 +99,18 @@
         <px-data-grid-column resizable="[[resizable]]" name="[[column.name]]" hidden="[[column.hidden]]" language="[[language]]" resources="[[resources]]">
           <template class="header">
             <vaadin-grid-sorter path="[[column.name]]">[[column.name]]</vaadin-grid-sorter>
+            <template is="dom-if" if="[[columnAutoFilter]]">
+              <vaadin-grid-filter aria-label="[[column.name]]" path="[[column.name]]" value="[[_getColumnAutoFilter(column.name, _columnFilter)]]">
+                  <px-auto-filter-field
+                  slot="filter"
+                  placeholder="[[localize('Filter')]]"
+                  value="[[_getColumnAutoFilter(column.name, _columnFilter)]]"
+                  on-filter-change="_setColumnAutoFilter"
+                  focus-target
+                  column-name="[[column.name]]"
+                >
+              </vaadin-grid-filter>
+            </template>
           </template>
           <template>
             <div class="cell-content-wrapper" style$="[[_getCellStyle(item, column)]]" on-mouseover="_fireCellHoverEvent" on-mouseout="_fireCellUnhoverEvent">[[get(column.name, item)]]</div>
@@ -350,6 +363,14 @@
             },
 
             /**
+             * To enable automatic column filtering change property to true
+             */
+            columnAutoFilter: {
+              type: Boolean,
+              value: false
+            },
+
+            /**
              * Array of objects of conditions used to highlight specific columns.
              * Format:
              * ```javascript
@@ -370,6 +391,11 @@
              * ```
              */
             highlight: {
+              type: Array,
+              value: []
+            },
+
+            _columnFilter: {
               type: Array,
               value: []
             }
@@ -637,6 +663,18 @@
               }
             }).length === 0;
           });
+        }
+
+        _getColumnAutoFilter(name) {
+          return this._columnFilter[name];
+        }
+
+        _setColumnAutoFilter(event) {
+          const columnName = event.target.columnName;
+          const value = event.target.value;
+          const clone = Object.assign({}, this._columnFilter);
+          clone[columnName] = value;
+          this._columnFilter = clone;
         }
 
         /**
