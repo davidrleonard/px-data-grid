@@ -212,7 +212,7 @@ function runTests() {
     describe('auto filter field tests', () => {
 
       beforeEach(() => {
-        grid = fixture('grid-with-auto-filter');
+        grid = fixture('simple-grid');
         grid.tableData = data;
         grid.autoFilter = true;
       });
