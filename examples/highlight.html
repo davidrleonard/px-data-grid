@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Custom Columns | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+</head>
+<body>
+  <p>Hover over a cell to highlight similar cells.</p>
+  <px-data-grid selection-mode="single" hide-selection-column></px-data-grid>
+
+  <script>
+    /*
+     * Find the grid in the DOM
+     */
+    const grid = document.querySelector('px-data-grid');
+
+    /**
+     * Fetches JSON from `url` asynchronously, returns a Promise with result
+     */
+    function getData(url) {
+      return fetch(url).then(resp => resp.json());
+    };
+
+    /*
+     * Configure the grid columns to show only some of the data and give
+     * some columns different header names. Any columns omitted will
+     * not be rendered in the grid.
+     */
+    grid.columns = [
+      {
+        name: 'Name',
+        path: 'name',
+        flexGrow: 5
+      },
+      {
+        name: 'Type',
+        path: 'type',
+        flexGrow: 5
+      },
+      {
+        name: 'Brewery',
+        path: 'brewery',
+        flexGrow: 5
+      },
+      {
+        name: 'Brewery Location',
+        path: 'location',
+        flexGrow: 4
+      },
+      {
+        name: 'ABV',
+        path: 'abv',
+        flexGrow: 1
+      },
+      {
+        name: 'Size (oz)',
+        path: 'oz',
+        flexGrow: 1
+      }
+    ];
+
+    /*
+     * Find the percentage of a value within a range.
+     */
+    function percentInRange(input, min, max) {
+      return Math.round(((input - min) * 100) / (max - min));
+    };
+
+    /*
+     * Add highlight rule for abv.
+     */
+    grid.highlight = [
+      {
+        type: 'cell',
+        condition: (cellContent, column, item) => {
+          if (column.path === 'abv') {
+            const percent = percentInRange(cellContent, abvMin, abvMax);
+            return percent <= 20;
+          }
+        },
+        color: '#ffe6e6'
+      },
+      {
+        type: 'cell',
+        condition: (cellContent, column, item) => {
+          if (column.path === 'abv') {
+            const percent = percentInRange(cellContent, abvMin, abvMax);
+            return percent > 20 && percent <= 40;
+          }
+        },
+        color: '#ffb3b3'
+      },
+      {
+        type: 'cell',
+        condition: (cellContent, column, item) => {
+          if (column.path === 'abv') {
+            const percent = percentInRange(cellContent, abvMin, abvMax);
+            return percent > 40 && percent <= 60;
+          }
+        },
+        color: '#ff8080'
+      },
+      {
+        type: 'cell',
+        condition: (cellContent, column, item) => {
+          if (column.path === 'abv') {
+            const percent = percentInRange(cellContent, abvMin, abvMax);
+            return percent > 60 && percent <= 80;
+          }
+        },
+        color: '#ff4d4d'
+      },
+      {
+        type: 'cell',
+        condition: (cellContent, column, item) => {
+          if (column.path === 'abv') {
+            const percent = percentInRange(cellContent, abvMin, abvMax);
+            return percent > 80;
+          }
+        },
+        color: '#ff1a1a'
+      },
+      {
+        type: 'row',
+        condition: (cellContent, item) => item.abv === abvMax,
+        color: '#ff1a1a'
+      },
+      {
+        type: 'row',
+        condition: (cellContent, item) => item.abv === abvMin,
+        color: '#ffe6e6'
+      }
+    ];
+
+    /*
+     * When the user hovers over a cell, adds a new temporary highlight rule
+     * that highlights that cell and other cells with the same value. Removes
+     * the highlight rule when the user hovers a different cell or unhovers
+     * the grid.
+     */
+    let hoverHighlighter = null;
+    grid.addEventListener('cell-hover', e => {
+      const column = e.detail.column.path; // should be able to just get `event.detail.cellContent` here but can't due to a bug
+      const value = e.detail.item[column];
+      if (hoverHighlighter) {
+        grid.highlight = grid.highlight.filter(h => h !== hoverHighlighter);
+        hoverHighlighter = null;
+      }
+      hoverHighlighter = {
+        type: 'cell',
+        condition: (cellContent, column, item) => cellContent === value,
+        color: '#B7CEEC'
+      };
+      grid.highlight = grid.highlight.concat([hoverHighlighter]);
+      console.log(`Highlighting ${value}`);
+    });
+    grid.addEventListener('cell-unhover', e => {
+      if (hoverHighlighter) {
+        grid.highlight = grid.highlight.filter(h => h !== hoverHighlighter);
+        hoverHighlighter = null;
+      }
+    });
+
+    /*
+     * Fetch data and pass it to the table
+     */
+    var abvMin = 1;
+    var abvMax = 0;
+    getData('sample-data/craft-beers.json').then(data => {
+      let subset = data.slice(0,50); // grid only renders 50 items because of bug #388, oh well
+      /* Find the min/max for abv, will be used in highlighting */
+      subset.forEach(d => {
+        const {abv} = d;
+        if (abv > abvMax) abvMax = abv;
+        if (abv < abvMin) abvMin = abv;
+      });
+      grid.tableData = subset;
+    });
+  </script>
+</body>
+</html>

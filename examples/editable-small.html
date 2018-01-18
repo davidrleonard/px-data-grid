@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Custom Columns | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+</head>
+<body>
+  <px-data-grid editable></px-data-grid>
+
+<script>
+  var grid = document.querySelector('px-data-grid');
+
+  grid.columns = [
+    {
+      name: 'Name',
+      path: 'name',
+      type: 'string',
+      editable: true,
+      renderer: 'px-data-grid-string-renderer'
+    }
+  ];
+
+  grid.tableData = [{ name: 'John' }];
+</script>
+</body>
+</html>

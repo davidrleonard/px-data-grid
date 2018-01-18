@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Remote Data Provider | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+</head>
+<body>
+  <!-- Load 1000 total items in groups of 100 at a time -->
+  <px-data-grid page-size="100" size="1000"></px-data-grid>
+
+  <script>
+    /*
+     * Find the grid in the DOM
+     */
+    const grid = document.querySelector('px-data-grid');
+
+    /**
+     * Fetches JSON from `url` asynchronously. Returns a Promise with result.
+     * Set `fakeWaitTime` to a number in seconds to delay each call. This will
+     * simulate network latency to show how the data grid behaves when fetching
+     * data over a slow connection.
+     */
+    function getData(url, fakeWaitTime=0) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          fetch(url).then(resp => resp.json()).then(resolve);
+        }, fakeWaitTime);
+      });
+    };
+
+    /*
+     * Add a remoteDataProvider to load data from an external API.
+     *
+     * This method should request the data from an external source then call the
+     * `callback` function with an array of new data entries. The `params.pageSize`
+     * property will be set to the number of new entries the data grid
+     * expects to recieve for this call. To change the page size, set the
+     * `pageSize` property on the px-data-grid instance.
+     *
+     * The `remoteDataProvider` function will be called over and over again as
+     * the user scrolls down the grid until all the items have been loaded.
+     * Set the total number of items to be loaded by changing the `size` property
+     * on the px-data-grid instance.
+     */
+    grid.remoteDataProvider = (params, callback) => {
+      let page = params.page + 1; // pages start at 1 in our API, but the grid starts at page 0
+      let url = `sample-data/crimes/${page}`;
+      console.log(`Grid requested page #${page}, fetching ${params.pageSize} items from API`);
+      getData(url, 1000).then(data => {
+        console.log(`Loaded page #${page}, sending ${data.length} loaded items to data grid`);
+        callback(data);
+      });
+    };
+  </script>
+</body>
+</html>

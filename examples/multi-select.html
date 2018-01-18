@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Multi Select | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/lib/elements/custom-style.html"/>
+  <link rel="import" href="../../polymer/lib/elements/dom-repeat.html"/>
+  <link rel="import" href="../../polymer/lib/elements/dom-bind.html"/>
+  <link rel="import" href="../../polymer/lib/elements/dom-if.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-size: 15px;
+    }
+    .container {
+      padding: 20px;
+    }
+  </style>
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+</head>
+<body>
+  <dom-bind>
+    <template>
+      <div class="container">
+        <px-data-grid selection-mode="multi" selected-items="{{selectedItems}}"></px-data-grid>
+        <div class="selected-information">
+          <h2>Review Selected Items</h2>
+
+          <button id="deselectFirst">Deselect first selected</button>
+          <button id="deselectAll">Deselect all</button>
+          <button id="selectRandom">Select random</button>
+
+          <template is="dom-if" if="[[selectedItems]]">
+            <p>There are [[selectedItems.length]] items selected. Click or tap an item in the grid to select it.</p>
+            <template is="dom-repeat" items="[[selectedItems]]">
+              <p>[[item.address]] - [[item.crimeType]] - [[item.description]]</p>
+            </template>
+          </template>
+        </div>
+      </div>
+    </template>
+  </dom-bind>
+
+  <script>
+    /*
+     * Find elements in the DOM
+     */
+    const grid = document.querySelector('px-data-grid');
+    const app = document.querySelector('dom-bind');
+    const selectRandomBtn = document.getElementById('selectRandom');
+    const deselectFirstBtn = document.getElementById('deselectFirst');
+    const deselectAllBtn = document.getElementById('deselectAll');
+
+    /*
+     * Listen for user selection with vanilla JavaScript by binding to the
+     * 'on-selected-items-changed' event. When the user selects an item,
+     * the event will be fired and we can take a look at the new list
+     * of selected items.
+     *
+     * You could use this approach to add/remove selected items from your
+     * app if it is built with a framework other than Polymer.
+     */
+    let lastSelectedItemCount = 0;
+    grid.addEventListener('selected-items-changed', e => {
+      let selectedItemCount = grid.selectedItems.length;
+      if (selectedItemCount !== lastSelectedItemCount) {
+        console.log(`Selected items changed, there are ${grid.selectedItems.length} items selected`);
+        lastSelectedItemCount = selectedItemCount;
+      }
+    });
+
+    /*
+     * Deselect a single item by filtering the grid `selectedItems` property
+     * and returning a new Array with that object removed.
+     */
+    deselectFirst.addEventListener('click', e => {
+      grid.selectedItems = grid.selectedItems.slice(1);
+    });
+
+    /*
+     * Deselect all items by clearing out the grid `selectedItems` property.
+     */
+    deselectAll.addEventListener('click', e => {
+      grid.selectedItems = [];
+    });
+
+    /**
+     * Gets a random item from the grid that is not currently selected.
+     */
+    function getRandomUnselectedItem() {
+      if (grid.selectedItems.length === grid.tableData.length) {
+        // All items are selected
+        return null;
+      }
+      const getRandomInt = max => Math.floor(Math.random() * Math.floor(max));
+      const index = getRandomInt(grid.tableData.length-1);
+      const item = grid.tableData[index];
+      if (grid.selectedItems.indexOf(item) === -1) {
+        return item;
+      }
+      else {
+        // That item was selected, try to get another
+        return getRandomUnselectedItem();
+      }
+    };
+
+    /*
+     * Deselect all items by clearing out the grid `selectedItems` property.
+     */
+    selectRandom.addEventListener('click', e => {
+      const item = getRandomUnselectedItem();
+      if (item) {
+        grid.selectedItems = grid.selectedItems.concat([item]);
+      }
+    });
+
+    /**
+     * Fetches JSON from `url` asynchronously, returns a Promise with result
+     */
+    function getData(url) {
+      return fetch(url).then(resp => resp.json());
+    };
+
+    /*
+     * Configure the grid columns
+     */
+    grid.columns = [
+      {
+        name: 'Crime Type',
+        path: 'crimeType'
+      },
+      {
+        name: 'Address',
+        path: 'address'
+      },
+      {
+        name: 'Description',
+        path: 'description'
+      },
+      {
+        name: 'Date/Time',
+        path: 'dateTime'
+      },
+      {
+        name: 'Case Number',
+        path: 'caseNumber'
+      },
+      {
+        name: 'Police Beat',
+        path: 'policeBeat'
+      }
+    ];
+
+    /*
+     * Fetch data and pass it to the table
+     */
+    getData('sample-data/crimes/1').then(data => {
+      grid.tableData = data;
+    });
+  </script>
+</body>
+</html>

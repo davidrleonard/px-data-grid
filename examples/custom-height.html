@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Custom Height | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+<style>
+  .container {
+    display: block;
+    width: 800px;
+    height: 500px;
+  }
+  .data-grid {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: red;
+  }
+</style>
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+</head>
+<body>
+
+  <div class="container">
+    <px-data-grid grid-height="500px"></px-data-grid>
+
+    <!-- <div class="data-grid"></div> -->
+  </div>
+
+  <script>
+    /*
+     * Find the grid in the DOM
+     */
+    const grid = document.querySelector('px-data-grid');
+
+    /**
+     * Fetches JSON from `url` asynchronously, returns a Promise with result
+     */
+    function getData(url) {
+      return fetch(url).then(resp => resp.json());
+    };
+
+    /*
+     * Configure the grid columns to show only some of the data and give
+     * some columns different header names. Any columns omitted will
+     * not be rendered in the grid.
+     */
+    grid.columns = [
+      {
+        name: 'Name',
+        path: 'name'
+      },
+      {
+        name: 'Region',
+        path: 'region'
+      },
+      {
+        name: 'Subregion',
+        path: 'subregion'
+      },
+      {
+        name: 'Languages Spoken',
+        path: 'languages'
+      },
+      {
+        name: 'Total Area',
+        path: 'area'
+      }
+    ];
+
+    /*
+     * Fetch data and pass it to the table
+     */
+    getData('sample-data/countries.json').then(data => {
+      grid.tableData = data;
+    });
+  </script>
+</body>
+</html>

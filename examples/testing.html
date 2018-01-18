@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Testing | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+</head>
+<body>
+  <px-data-grid></px-data-grid>
+
+  <script>
+    const grid = document.querySelector('px-data-grid');
+    grid.tableData = [
+      { name: 'Apples', count: 4 },
+      { name: 'Oranges', count: 3 },
+      { name: 'Grapes', count: 2 }
+    ];
+  </script>
+</body>
+</html>

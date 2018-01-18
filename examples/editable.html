@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Custom Columns | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+  <style>
+    .container {
+      display: flex;
+      width: 100%;
+      padding-top: 1rem;
+      align-items: center;
+    }
+    #endingBalance {
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: auto;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <px-data-grid editable></px-data-grid>
+  <div class="container">
+    <div class="actions">
+      <button id="addNew">Add New Transaction</button>
+      <button id="updateBalance">Update Balance</button>
+    </div>
+    <p id="endingBalance">Ending Balance: $0</p>
+  </div>
+  <script>
+    /*
+     * Find the grid in the DOM
+     */
+    const grid = document.querySelector('px-data-grid');
+
+    /*
+     * Configure the grid columns based on the data we want the user
+     * to be able to enter.
+     */
+    grid.columns = [
+      {
+        name: 'Transaction #',
+        path: 'number',
+        type: 'string',
+        editable: false,
+        flexGrow: 1
+      },
+      {
+        name: 'Date',
+        path: 'date',
+        type: 'date',
+        editable: true,
+        renderer: 'px-data-grid-date-renderer',
+        flexGrow: 3
+      },
+      {
+        name: 'Description',
+        path: 'description',
+        type: 'string',
+        editable: true,
+        renderer: 'px-data-grid-string-renderer',
+        flexGrow: 10
+      },
+      {
+        name: 'Debit (-)',
+        path: 'debit',
+        type: 'number',
+        editable: true,
+        renderer: 'px-data-grid-number-renderer',
+        flexGrow: 1
+      },
+      {
+        name: 'Credit (+)',
+        path: 'credit',
+        type: 'number',
+        editable: true,
+        renderer: 'px-data-grid-number-renderer',
+        flexGrow: 1
+      },
+      {
+        name: 'Balance',
+        path: 'balance',
+        type: 'number',
+        editable: false,
+        flexGrow: 2
+      }
+    ];
+
+    /*
+     * Adds a new empty line item for the user to fill in.
+     */
+    function addNewTransaction() {
+      let transactionNum = grid.tableData.length + 1;
+      grid.tableData = grid.tableData.concat([{
+        number: transactionNum,
+        date: moment().toISOString(),
+        description: '',
+        debit: 0,
+        credit: 0,
+        balance: null
+      }])
+    };
+    document.getElementById('addNew').addEventListener('click', addNewTransaction);
+
+    /*
+     * Loops over the grid and update the ending balance for each line item.
+     * Then update the ending balance for the entire account.
+     */
+    function updateEachBalance() {
+      let balance = 0;
+      grid.tableData.forEach((item, index) => {
+        let {credit, debit} = item;
+        if (credit) {
+          balance = parseFloat(balance) + parseFloat(credit);
+        }
+        if (debit) {
+          balance = parseFloat(balance) - parseFloat(debit);
+        }
+        item.balance = balance;
+      });
+      /* Force grid to re-render items */
+      grid.tableData = grid.tableData.map(item => Object.assign({}, item));
+      document.getElementById('endingBalance').innerText = `Ending Balance: $${balance}`
+    };
+    document.getElementById('updateBalance').addEventListener('click', updateEachBalance);
+
+    /*
+     * Add 'beginning balance' and example debit to start things off.
+     */
+    grid.tableData = [
+      {
+        number: 1,
+        date: '2018-01-07T23:26:33.884Z',
+        description: 'Previous Balance',
+        debit: 0,
+        credit: 1250,
+        balance: 100
+      }
+    ];
+    updateEachBalance();
+  </script>
+</body>
+</html>
