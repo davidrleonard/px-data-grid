@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Basic | px-data-grid examples</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <link rel="import" href="../css/px-data-grid-light-theme-styles.html"/>
+  <link rel="import" href="../px-data-grid.html"/>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: block;
+      height: 200px;
+      width: 100vw;
+    }
+  </style>
+</head>
+<body>
+  <custom-style>
+    <style is="custom-style" include="px-theme-styles"></style>
+  </custom-style>
+  <custom-style>
+    <style include="px-data-grid-light-theme-styles"></style>
+  </custom-style>
+
+  <div class="container">
+    <px-data-grid></px-data-grid>
+  </div>
+
+  <script>
+    /*
+     * Find the grid in the DOM
+     */
+    const grid = document.querySelector('px-data-grid');
+
+    /*
+     * Add some data to the grid
+     */
+    grid.tableData = [
+      { name: 'Ada Lovelace', email: 'ada@ge.com' },
+      { name: 'Grace Hopper', email: 'grace@ge.com' },
+      { name: 'Mae Jemison', email: 'mae@ge.com' },
+      { name: 'Sally Ride', email: 'sally@ge.com' },
+      { name: 'Sally Ride', email: 'sally@ge.com' }
+    ];
+  </script>
+</body>
+</html>
