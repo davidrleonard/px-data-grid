@@ -66,7 +66,7 @@ document.addEventListener('WebComponentsReady', () => {
           name: 'GENERATOR 004',
           height: 68,
           weight: 478209.22,
-          model: 'z099X'
+          model: ''
          }
       ];
 
@@ -101,15 +101,19 @@ document.addEventListener('WebComponentsReady', () => {
     it('displays strings that can be parsed to numbers', () => {
       expect(getBodyCellText(grid, 0, 3) + '').to.equal('1934');
       expect(getBodyCellText(grid, 1, 3) + '').to.equal('1934.29');
-      expect(getBodyCellText(grid, 2, 3) + '').to.equal('99');
+    });
+
+    it('displays strings that cannot be parsed to numbers', () => {
+      expect(getBodyCellText(grid, 2, 3) + '').to.equal('099A');
+    });
+
+    it('does not coerce empty strings to `0`', () => {
+      expect(getBodyCellText(grid, 3, 3) + '').to.equal('');
     });
 
     it('throws an error but still displays values that cannot be parsed to a number', () => {
       expect(consoleErrors.length).to.equal(1);
       expect(consoleErrors[0]).to.match(/Expected a value that could be parsed to a number/);
-      expect(getBodyCellText(grid, 3, 3) + '').to.equal('z099X');
     });
-
-
   });
 });
